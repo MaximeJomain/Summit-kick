@@ -6,11 +6,10 @@ public class WeaponController : MonoBehaviour
 {
     public WeaponScriptableObject weaponData;
     
-    public void Hit(Rigidbody sandbagRb, Vector3 normalVec, RaycastHit hitInfo)
+    public bool Hit(Rigidbody sandbagRb, Vector3 normalVec, RaycastHit hitInfo)
     {
         if (weaponData.canBeUsed)
         {
-            // TODO Finir tutoriel sur ragdolls
             Debug.Log("HIT");
             if (weaponData.randDir > 0)
             {
@@ -25,7 +24,6 @@ public class WeaponController : MonoBehaviour
             if (weaponData.randFor > 0)
             {
                 appliedForce += Random.Range(-weaponData.randFor * weaponData.hitForce, weaponData.randFor * weaponData.hitForce);
-                Debug.Log("appliedForce " + appliedForce);
             }
             
             // Ajuste la force exercée vers le haut
@@ -37,7 +35,11 @@ public class WeaponController : MonoBehaviour
             Debug.DrawLine(hitInfo.point, hitInfo.point + normalVec * weaponData.hitForce, Color.blue, 1f);
             sandbagRb.AddForceAtPosition(normalVec * appliedForce, hitInfo.point, ForceMode.Impulse);
             if (weaponData.cooldown > 0) StartCoroutine(WeaponCooldownCoroutine(weaponData));
+
+            return true;
         }
+
+        return false;
     }
     
     private static IEnumerator WeaponCooldownCoroutine(WeaponScriptableObject weapon)

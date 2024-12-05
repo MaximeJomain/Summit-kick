@@ -7,34 +7,52 @@ using UnityEngine.Serialization;
 
 public class PlayerController : MonoBehaviour
 {
-    private Camera mainCamera;
-    private Vector3 vectorStart, vectorEnd, hitVector;
-    private Quaternion startRotation;
-    private GameObject sandbag;
-    private WeaponController weapon;
+    [SerializeField]
+    private GameObject rigParent;
     
     [SerializeField]
-    private Rigidbody sandbagRB;
+    private Rigidbody rb;
     
     [SerializeField]
     private WeaponScriptableObject[] weaponDataList;
 
+    private new Collider mainCollider;
+    private Rigidbody mainRb;
+    private Camera mainCamera;
+    private Vector3 vectorStart, vectorEnd, hitVector;
+    private WeaponController weapon;
+    private Collider[] rigColliderList;
+    private Rigidbody[] rigRbList;
+    private bool isRagdollEnabled, isHit, isMoving;
+    private Quaternion startRotation, localRotation;
+    private Vector3 localPosition;
+    private Animator animator;
+    
     private void Awake()
     {
         mainCamera = Camera.main;
-        sandbag = GameObject.Find("Sandbag");
         weapon = gameObject.AddComponent<WeaponController>();
         
         for (int i = 0; i < weaponDataList.Length; i++)
         {
-            weaponDataList[i] = Instantiate(weaponDataList[i]); // Crée une instance unique pour cette session
+            weaponDataList[i] = Instantiate(weaponDataList[i]);
         }
+
+        rigColliderList = rigParent.GetComponentsInChildren<Collider>();
+        rigRbList = rigParent.GetComponentsInChildren<Rigidbody>();
+        mainCollider = GetComponent<Collider>();
+        mainRb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
     }
 
     private void Start()
     {
+        startRotation = transform.rotation;
+        localRotation = rb.gameObject.transform.localRotation;
+        localPosition = rb.gameObject.transform.localPosition;
+        
+        DisableRagdollMode();
         SwitchWeapon(0);
-        startRotation = sandbag.transform.rotation;
     }
 
     private void Update()
@@ -61,16 +79,38 @@ public class PlayerController : MonoBehaviour
             {
                 if (hit.collider.CompareTag("Sandbag"))
                 {
-                    weapon.Hit(sandbagRB, normalVec, hit);
+                    EnableRagdollMode();
+                    isHit = weapon.Hit(rb, normalVec, hit);
                 }
             }
         }
 
-        if (sandbagRB.velocity.magnitude == 0f)
+        if (isRagdollEnabled)
         {
-            sandbag.transform.rotation = startRotation;
+            mainRb.position = rb.position;
+            mainRb.rotation = rb.rotation;
+        }
+        
+        if (isHit && rb.velocity.magnitude > 0)
+        {
+            isMoving = true;
         }
 
+        if (isMoving && rb.velocity.magnitude < 0.1f)
+        {
+            isMoving = false;
+            isHit = false;
+            DisableRagdollMode();
+            animator.SetTrigger("Get Up");
+            transform.rotation = startRotation;
+            // rb.gameObject.transform.localPosition = localPosition;
+            // rb.gameObject.transform.localRotation = localRotation;
+            
+            // rb.gameObject.transform.localRotation = localRotation;
+            // rb.gameObject.transform.localPosition += new Vector3(0, 1f, 0f);
+        }
+
+        
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SwitchWeapon(0);
@@ -101,5 +141,44 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("SwitchWeapon index does not exist " + index);
         }
+    }
+
+    private void DisableRagdollMode()
+    {
+        Debug.Log("DisableRagdollMode");
+        isRagdollEnabled = false;
+        
+        foreach (Collider col in rigColliderList)
+        {
+            col.enabled = false;
+        }
+        foreach (Rigidbody rigBod in rigRbList)
+        {
+            rigBod.isKinematic = true;
+        }
+        
+        mainCollider.enabled = true;
+        mainRb.isKinematic = false;
+        animator.enabled = true;
+    }
+    
+    private void EnableRagdollMode()
+    {
+        Debug.Log("EnableRagdollMode");
+        rb.isKinematic = false;
+        animator.enabled = false;
+        
+        foreach (Collider col in rigColliderList)
+        {
+            col.enabled = true;
+        }
+        foreach (Rigidbody rigBod in rigRbList)
+        {
+            rigBod.isKinematic = false;
+        }
+        
+        mainCollider.enabled = false;
+        mainRb.isKinematic = true;
+        isRagdollEnabled = true;
     }
 }
