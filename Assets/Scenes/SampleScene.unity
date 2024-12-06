@@ -250,6 +250,10 @@ MonoBehaviour:
   rb: {fileID: 713843598}
   weaponDataList:
   - {fileID: 11400000, guid: c2c629dca54a02543abef19e3ede52d0, type: 2}
+  isRagdollEnabled: 0
+  isHit: 0
+  isMoving: 0
+  maxHoldTime: 4
 --- !u!65 &379277123
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -585,7 +589,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 22.83
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -610,7 +614,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.8999963, y: -0.46000004, z: -30}
+  m_LocalPosition: {x: 6.4999967, y: -0.46000004, z: -30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -666,7 +670,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1077459644
 Transform:
   m_ObjectHideFlags: 0
@@ -699,7 +703,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1.0805925, y: 1.9832293, z: 0.5083855}
   m_Center: {x: -0.00000007248639, y: -0.112829685, z: -0.004029608}
@@ -949,8 +953,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BindingMode: 1
-  m_FollowOffset: {x: 30, y: 4, z: 11}
-  m_XDamping: 1
+  m_FollowOffset: {x: 30, y: 4, z: 11.6}
+  m_XDamping: 0.2
   m_YDamping: 1
   m_ZDamping: 1
   m_AngularDampingMode: 0
@@ -1219,7 +1223,7 @@ MonoBehaviour:
   m_Follow: {fileID: 379277121}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 10
+    OrthographicSize: 22.83
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -1245,7 +1249,7 @@ Transform:
   m_GameObject: {fileID: 2131899032}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.8999963, y: -0.46000004, z: -30}
+  m_LocalPosition: {x: 6.4999967, y: -0.46000004, z: -30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1450,7 +1454,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7038583685568543166, guid: 63f0eb423871f8443ba16cc77952e247, type: 3}
       propertyPath: m_TagString
-      value: Untagged
+      value: Sandbag
       objectReference: {fileID: 0}
     - target: {fileID: 7273412894975343662, guid: 63f0eb423871f8443ba16cc77952e247, type: 3}
       propertyPath: m_Height

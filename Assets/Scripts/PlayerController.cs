@@ -23,10 +23,15 @@ public class PlayerController : MonoBehaviour
     private WeaponController weapon;
     private Collider[] rigColliderList;
     private Rigidbody[] rigRbList;
-    private bool isRagdollEnabled, isHit, isMoving;
+    public bool isRagdollEnabled, isHit, isMoving;
     private Quaternion startRotation, localRotation;
     private Vector3 localPosition;
     private Animator animator;
+
+    [SerializeField]
+    private float maxHoldTime = 5f;
+    
+    private float holdTime, powerMultiplier;
     
     private void Awake()
     {
@@ -59,14 +64,29 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            ResetPosition();
         }
         
         if (Input.GetMouseButtonDown(0))
         {
             vectorStart = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             vectorStart.z = 0;
+
+            holdTime = 1f;
         }
+
+        if (Input.GetMouseButton(0))
+        {
+            holdTime += Time.deltaTime;
+            holdTime = Mathf.Clamp(holdTime, 1f, maxHoldTime);
+            powerMultiplier = holdTime;
+            
+            // Calcul de la puissance (optionnel : pour affichage visuel ou UI)
+            var powerDisplay = holdTime / maxHoldTime;
+            Debug.Log($"Puissance : {powerDisplay * 100}%");
+        }
+        
         if (Input.GetMouseButtonUp(0))
         {
             vectorEnd = mainCamera.ScreenToWorldPoint(Input.mousePosition);
@@ -80,7 +100,7 @@ public class PlayerController : MonoBehaviour
                 if (hit.collider.CompareTag("Sandbag"))
                 {
                     EnableRagdollMode();
-                    isHit = weapon.Hit(rb, normalVec, hit);
+                    isHit = weapon.Hit(rb, normalVec * powerMultiplier, hit);
                 }
             }
         }
@@ -96,13 +116,9 @@ public class PlayerController : MonoBehaviour
             isMoving = true;
         }
 
-        if (isMoving && rb.velocity.magnitude < 0.1f)
+        if (isMoving && rb.velocity.magnitude < 0.15f)
         {
-            isMoving = false;
-            isHit = false;
-            DisableRagdollMode();
-            animator.SetTrigger("Get Up");
-            transform.rotation = startRotation;
+            ResetPosition();
             // rb.gameObject.transform.localPosition = localPosition;
             // rb.gameObject.transform.localRotation = localRotation;
             
@@ -128,6 +144,15 @@ public class PlayerController : MonoBehaviour
         {
             SwitchWeapon(3);
         }
+    }
+
+    private void ResetPosition()
+    {
+        isMoving = false;
+        isHit = false;
+        animator.SetTrigger("Get Up");
+        DisableRagdollMode();
+        transform.rotation = startRotation;
     }
 
     private void SwitchWeapon(int index)

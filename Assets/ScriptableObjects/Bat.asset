@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 104049bcb7bfaa849b99dda897f6bc1b, type: 3}
   m_Name: Bat
   m_EditorClassIdentifier: 
-  hitForce: 1000
+  hitForce: 500
   cooldown: 3
   canBeUsed: 1
   randDir: 0
