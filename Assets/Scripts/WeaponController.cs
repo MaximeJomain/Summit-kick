@@ -5,10 +5,12 @@ using UnityEngine;
 public class WeaponController : MonoBehaviour
 {
     public WeaponScriptableObject weaponData;
+
+    private bool canBeUsed = true;
     
     public bool Hit(Rigidbody sandbagRb, Vector3 normalVec, RaycastHit hitInfo)
     {
-        if (weaponData.canBeUsed)
+        if (canBeUsed)
         {
             Debug.Log("HIT");
             if (weaponData.randDir > 0)
@@ -42,11 +44,12 @@ public class WeaponController : MonoBehaviour
         return false;
     }
     
-    private static IEnumerator WeaponCooldownCoroutine(WeaponScriptableObject weapon)
+    private IEnumerator WeaponCooldownCoroutine(WeaponScriptableObject weapon)
     {
-        weapon.canBeUsed = false;
+        canBeUsed = false;
         yield return new WaitForSeconds(weapon.cooldown);
-        weapon.canBeUsed = true;
+        canBeUsed = true;
+        Debug.Log("weapon.canBeUsed = true");
         yield return null;
     }
 }

@@ -93,7 +93,10 @@ public class PlayerController : MonoBehaviour
             vectorEnd.z = 0;
 
             hitVector = vectorEnd - vectorStart;
+            Debug.Log("hitVector " + hitVector);
             Vector3 normalVec = hitVector.normalized;
+            Debug.Log("normalVec " + normalVec);
+            Debug.Log("normalVec magnitude " + normalVec.magnitude);
             Debug.DrawLine(vectorStart, vectorEnd, Color.red, 1f);
             if (Physics.Raycast(vectorStart, normalVec, out RaycastHit hit, hitVector.magnitude))
             {
@@ -116,7 +119,7 @@ public class PlayerController : MonoBehaviour
             isMoving = true;
         }
 
-        if (isMoving && rb.velocity.magnitude < 0.15f)
+        if (isMoving && rb.velocity.magnitude < 0.075f)
         {
             ResetPosition();
             // rb.gameObject.transform.localPosition = localPosition;
@@ -170,8 +173,8 @@ public class PlayerController : MonoBehaviour
 
     private void DisableRagdollMode()
     {
-        Debug.Log("DisableRagdollMode");
         isRagdollEnabled = false;
+        animator.enabled = true;
         
         foreach (Collider col in rigColliderList)
         {
@@ -184,13 +187,11 @@ public class PlayerController : MonoBehaviour
         
         mainCollider.enabled = true;
         mainRb.isKinematic = false;
-        animator.enabled = true;
     }
     
     private void EnableRagdollMode()
     {
-        Debug.Log("EnableRagdollMode");
-        rb.isKinematic = false;
+        isRagdollEnabled = true;
         animator.enabled = false;
         
         foreach (Collider col in rigColliderList)
@@ -204,6 +205,5 @@ public class PlayerController : MonoBehaviour
         
         mainCollider.enabled = false;
         mainRb.isKinematic = true;
-        isRagdollEnabled = true;
     }
 }
