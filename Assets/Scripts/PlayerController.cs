@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,6 +17,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private WeaponScriptableObject[] weaponDataList;
 
+    [SerializeField]
+    private ShakyCame shakyCame;
+
+    [SerializeField]
+    private AudioClip[] weaponSounds, characterSounds; 
+
     private new Collider mainCollider;
     private Rigidbody mainRb;
     private Camera mainCamera;
@@ -27,11 +34,12 @@ public class PlayerController : MonoBehaviour
     private Quaternion startRotation, localRotation;
     private Vector3 localPosition;
     private Animator animator;
+    private AudioSource audioSourceCam, audioSource;
 
     [SerializeField]
     private float maxHoldTime = 5f;
     
-    private float holdTime, powerMultiplier;
+    private float holdTime, powerMultiplier, powerPercentage = 1f;
     
     private void Awake()
     {
@@ -48,6 +56,8 @@ public class PlayerController : MonoBehaviour
         mainCollider = GetComponent<Collider>();
         mainRb = GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
+        audioSourceCam = mainCamera!.GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -83,8 +93,8 @@ public class PlayerController : MonoBehaviour
             powerMultiplier = holdTime;
             
             // Calcul de la puissance (optionnel : pour affichage visuel ou UI)
-            var powerDisplay = holdTime / maxHoldTime;
-            Debug.Log($"Puissance : {powerDisplay * 100}%");
+            powerPercentage = holdTime / maxHoldTime;
+            Debug.Log($"Puissance : {powerPercentage * 100}%");
         }
         
         if (Input.GetMouseButtonUp(0))
@@ -104,6 +114,25 @@ public class PlayerController : MonoBehaviour
                 {
                     EnableRagdollMode();
                     isHit = weapon.Hit(rb, normalVec * powerMultiplier, hit);
+                    if (isHit)
+                    {
+                        // shakyCame.ShakyCameCustom(1f, 1f);
+                        AudioClip hitSound = GetRandomAudioClip(weaponSounds);
+                        if (hitSound)
+                        {
+                            audioSourceCam.volume = 1f;
+                            audioSourceCam.PlayOneShot(hitSound);
+                        }
+                        AudioClip charSound = GetRandomAudioClip(characterSounds);
+                        if (charSound)
+                        {
+                            audioSource.volume = Random.Range(0.1f, 0.7f);
+                            audioSource.PlayOneShot(charSound);
+                        }
+
+                        
+                        
+                    }
                 }
             }
         }
@@ -205,5 +234,17 @@ public class PlayerController : MonoBehaviour
         
         mainCollider.enabled = false;
         mainRb.isKinematic = true;
+    }
+
+    private static AudioClip GetRandomAudioClip(AudioClip[] array)
+    {
+        if (array == null || array.Length == 0)
+        {
+            Debug.LogWarning("Le tableau d'AudioClip est vide ou null");
+            return null;
+        }
+        
+        int rand = UnityEngine.Random.Range(0, array.Length);
+        return array[rand];
     }
 }

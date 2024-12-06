@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WeaponController : MonoBehaviour
 {
@@ -36,6 +38,7 @@ public class WeaponController : MonoBehaviour
             
             Debug.DrawLine(hitInfo.point, hitInfo.point + normalVec * weaponData.hitForce, Color.blue, 1f);
             sandbagRb.AddForceAtPosition(normalVec * appliedForce, hitInfo.point, ForceMode.Impulse);
+            
             if (weaponData.cooldown > 0) StartCoroutine(WeaponCooldownCoroutine(weaponData));
 
             return true;
