@@ -8,8 +8,11 @@ using Random = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private Rigidbody handleRigidbody;
+    [SerializeField] private float followSpeed = 10f;
+    
     [SerializeField]
-    private GameObject rigParent;
+    private GameObject rigParent, baseballBat;
     
     [SerializeField]
     private Rigidbody rb;
@@ -72,6 +75,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // baseballBat.transform.position = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        // baseballBat.transform.position = new Vector3(baseballBat.transform.position.x, baseballBat.transform.position.y, -35f);
+
         if (Input.GetKeyDown(KeyCode.R))
         {
             // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -103,10 +109,14 @@ public class PlayerController : MonoBehaviour
             vectorEnd.z = 0;
 
             hitVector = vectorEnd - vectorStart;
-            Debug.Log("hitVector " + hitVector);
-            Vector3 normalVec = hitVector.normalized;
-            Debug.Log("normalVec " + normalVec);
-            Debug.Log("normalVec magnitude " + normalVec.magnitude);
+            if (hitVector.y > 0)
+            {
+                hitVector.y *= 1.5f;
+            }
+            // Vector3 normalVec = hitVector.normalized;
+            Vector3 normalVec = hitVector;
+            normalVec *= 0.05f;
+            
             Debug.DrawLine(vectorStart, vectorEnd, Color.red, 1f);
             if (Physics.Raycast(vectorStart, normalVec, out RaycastHit hit, hitVector.magnitude))
             {
@@ -123,10 +133,11 @@ public class PlayerController : MonoBehaviour
                             audioSourceCam.volume = 1f;
                             audioSourceCam.PlayOneShot(hitSound);
                         }
+                        
                         AudioClip charSound = GetRandomAudioClip(characterSounds);
-                        if (charSound)
+                        if (charSound && GetRandomChance(66))
                         {
-                            audioSource.volume = Random.Range(0.1f, 0.7f);
+                            audioSource.volume = Random.Range(0.1f, 0.5f);
                             audioSource.PlayOneShot(charSound);
                         }
 
@@ -176,6 +187,15 @@ public class PlayerController : MonoBehaviour
         {
             SwitchWeapon(3);
         }
+    }
+    
+    private void FixedUpdate()
+    {
+        Vector3 mousePosition = Input.mousePosition;
+        mousePosition.z = 45f; // Profondeur pour la caméra
+        Vector3 targetPosition = mainCamera.ScreenToWorldPoint(mousePosition);
+    
+        handleRigidbody.MovePosition(Vector3.Lerp(handleRigidbody.position, targetPosition, Time.fixedDeltaTime * followSpeed));
     }
 
     private void ResetPosition()
@@ -246,5 +266,14 @@ public class PlayerController : MonoBehaviour
         
         int rand = UnityEngine.Random.Range(0, array.Length);
         return array[rand];
+    }
+    
+    private bool GetRandomChance(int percentage)
+    {
+        percentage = Math.Clamp(percentage, 0, 100);
+
+        int randomValue = Random.Range(0, 100);
+
+        return randomValue < percentage;
     }
 }
